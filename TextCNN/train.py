@@ -65,8 +65,6 @@ def parse_args():
 args = parse_args()
 
 
-    
-gpu_ids = "6"
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]= args.gpu_ids
 
@@ -74,7 +72,9 @@ import torch
 import torch.optim as optim
 import torch.nn.functional as F
 
-import dataset
+
+sys.path.append('..')
+from datasets import imdb as dataset
 import models
 from torch.optim.lr_scheduler import MultiStepLR
 
