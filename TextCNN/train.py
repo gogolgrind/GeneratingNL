@@ -195,9 +195,10 @@ def main():
             print("model saves at {:4.2f} % accuracy".format(best_test_acc))
             pth = {}
             pth['epoch'] = epoch
+            pth['dataset'] = args.csv
             pth['state_dict'] = m.state_dict()
             pth['best_test_acc'] = best_test_acc
-            torch.save(pth, "{}/text_cnn_best.pth".format(args.root))
+            torch.save(pth, "{}/{}_text_cnn_best.pth".format(args.root,args.csv.replace('.csv','')))
             
         train_loss.append(tr_loss)
         train_acc.append(tr_acc)

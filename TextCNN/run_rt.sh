@@ -1,0 +1,2 @@
+#!/bin/bash
+python train.py --pretrained glove.6B.50d --epochs 50 --lr 0.01 --batch-size 64  --val-batch-size 64 --kernel-height 3,4,5 --out-channel 10 --dropout 0.5 --gpu_ids 3 --root /ksozykinraid/data/nlp/rt-polaritydata/ --csv rt-polarity.csv

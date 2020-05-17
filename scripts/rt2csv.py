@@ -26,5 +26,5 @@ negative['sentiment'] = sentiments[1]
 
 rt = pd.concat([positive,negative])
 rt.columns = imdb.columns
-
-rt.to_csv('{}/rt-polaritydata/rt-polarity.csv'.format(root))
+rt = rt[rt.review.map(len) > 100]
+rt.to_csv('{}/rt-polaritydata/rt-polarity.csv'.format(root),index=None)
