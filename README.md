@@ -6,3 +6,4 @@ A open source Pytorch implementation of ![Generating Natural Language Adversaria
 
 ### Links and References:
 -  https://github.com/leohsuofnthu/Pytorch-TextCNN
+-  https://github.com/wiseodd/controlled-text-generation
