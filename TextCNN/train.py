@@ -7,7 +7,7 @@
 import os
 import sys
 import argparse
-
+#os.environ["CUDA_LAUNCH_BLOCKING"]= "1"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='TextCNN')
@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--gpu_ids','-g', type=str, default='6', 
                         help='str with gpu ids')
                         
-    parser.add_argument('--pretrained', type=str, default='glove.6B.300d',
+    parser.add_argument('--pretrained', type=str, default="twitter.27B.50d",
                     help='choice of pretrined word embedding from torchtext')              
                         
     parser.add_argument('--epochs', type=int, default=150,
@@ -88,7 +88,7 @@ def train(m, device, train_itr, optimizer, epoch, max_epoch):
     for batch in train_itr:
         text, target = batch.text, batch.label
         text = torch.transpose(text,0, 1)
-        target.data.sub_(1)
+   
         text, target = text.to(device), target.to(device)
         optimizer.zero_grad()
         logit = m(text)
@@ -113,7 +113,7 @@ def valid(m, device, test_itr):
     for batch in test_itr:
         text, target = batch.text, batch.label
         text = torch.transpose(text,0, 1)
-        target.data.sub_(1)
+        
         text, target = text.to(device), target.to(device)
         
         logit = m(text)
@@ -149,17 +149,24 @@ def main():
     
     if not(os.path.exists(train_csv) and os.path.exists(val_csv)): 
         dataset.split_train_valid(data_csv, train_csv, val_csv, 0.8)
+        
+        
+    pretrained=args.pretrained
     
-    trainset, validset, vocab = dataset.create_tabular_dataset(train_csv, val_csv, args.spacy_lang, args.pretrained)
+    imdb = dataset.IMDB_Dataset(mbsize=args.batch_size,
+                       path_train = train_csv,
+                       path_valid = train_csv,pretrained=pretrained,fix_length=None)
+    trainset, validset, vocab = imdb.tabular_train,imdb.tabular_valid,imdb.TEXT.vocab
     
     #%%Show some example to show the dataset
     print("Show some examples from train/valid..")
     print(trainset[0].text,  trainset[0].label)
     print(validset[0].text,  validset[0].label)
     
-    train_iter, valid_iter = dataset.create_data_iterator(args.batch_size, args.val_batch_size,
-                                                         trainset, validset,device)
-                
+    train_iter, valid_iter = imdb.train_iter, imdb.valid_iter 
+    name = ".".join(pretrained.split('.')[:2])
+    dim = int(pretrained.split('.')[-1].replace('d',''))
+
     #%%Create
     kernels = [int(x) for x in args.kernel_height.split(',')]
     m = models.textCNN(vocab, args.out_channel, kernels, args.dropout , args.num_class).to(device)
@@ -198,6 +205,7 @@ def main():
             pth['dataset'] = args.csv
             pth['state_dict'] = m.state_dict()
             pth['best_test_acc'] = best_test_acc
+            pth['pretrained']=args.pretrained
             torch.save(pth, "{}/{}_text_cnn_best.pth".format(args.root,args.csv.replace('.csv','')))
             
         train_loss.append(tr_loss)
