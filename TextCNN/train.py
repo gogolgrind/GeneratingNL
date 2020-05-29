@@ -32,6 +32,11 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=150,
                         help='number of epochs to train (default: 10)')
     
+    
+    parser.add_argument('--fix_length', type=int, default=32,
+                        help='fix length')
+    
+    
     parser.add_argument('--lr', type=float, default=0.01,
                         help='learning rate (default: 0.01)')
     
@@ -88,7 +93,6 @@ def train(m, device, train_itr, optimizer, epoch, max_epoch):
     for batch in train_itr:
         text, target = batch.text, batch.label
         text = torch.transpose(text,0, 1)
-   
         text, target = text.to(device), target.to(device)
         optimizer.zero_grad()
         logit = m(text)
@@ -147,15 +151,14 @@ def main():
     val_csv = "{}/{}".format(args.root,'val.csv')
     
     
-    if not(os.path.exists(train_csv) and os.path.exists(val_csv)): 
-        dataset.split_train_valid(data_csv, train_csv, val_csv, 0.8)
+    dataset.split_train_valid(data_csv, train_csv, val_csv, 0.8)
         
         
     pretrained=args.pretrained
     
     imdb = dataset.IMDB_Dataset(mbsize=args.batch_size,
                        path_train = train_csv,
-                       path_valid = train_csv,pretrained=pretrained,fix_length=None)
+                       path_valid = train_csv,pretrained=pretrained,fix_length=args.fix_length)
     trainset, validset, vocab = imdb.tabular_train,imdb.tabular_valid,imdb.TEXT.vocab
     
     #%%Show some example to show the dataset
@@ -201,12 +204,14 @@ def main():
             
             print("model saves at {:4.2f} % accuracy".format(best_test_acc))
             pth = {}
+            dataset_name = args.csv.replace('.csv','')
             pth['epoch'] = epoch
-            pth['dataset'] = args.csv
+            pth['dataset'] = dataset_name
             pth['state_dict'] = m.state_dict()
             pth['best_test_acc'] = best_test_acc
             pth['pretrained']=args.pretrained
-            torch.save(pth, "{}/{}_text_cnn_best.pth".format(args.root,args.csv.replace('.csv','')))
+            
+            torch.save(pth, "{}/{}_{}_text_cnn_best.pth".format(args.root,dataset_name,args.pretrained))
             
         train_loss.append(tr_loss)
         train_acc.append(tr_acc)
