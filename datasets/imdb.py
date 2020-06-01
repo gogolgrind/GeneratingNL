@@ -48,7 +48,7 @@ def clean_str(string):
 
 def split_train_valid(path_data='imdb.csv', 
                       path_train='train.csv', path_valid='valid.csv',
-                      nrows = 10100, 
+                      nrows = 1, 
                       frac=0.8, rng = 0):
     df = pd.read_csv(path_data)
     #rng = 42 #RandomState()

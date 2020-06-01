@@ -256,7 +256,7 @@ class RNN_VAE(nn.Module):
  
 
 
-    def sample_sentence(self, z, c, raw=False, temp=1):
+    def sample_sentence(self, z, c, raw=False, temp=1,top_k=1):
         """
         Sample single sentence from p(x|z,c) according to given temperature.
         `raw = True` means this returns sentence as in dataset which is useful
@@ -293,10 +293,10 @@ class RNN_VAE(nn.Module):
             logits.append(y)
             y = F.softmax(y/temp, dim=0)
             
+            topk_y, topk_idx = torch.topk(y, top_k)
             
-            
-            
-            idx = torch.argmax(y)
+            idx = torch.multinomial(torch.tensor(topk_idx,dtype=torch.float32),1)[0]
+            idx = topk_idx[idx]
 
             word = Variable(torch.LongTensor([int(idx)]))
             word = word.cuda() if self.gpu else word
