@@ -54,8 +54,11 @@ def enable_all_grads(model):
     for name,param in model.named_parameters():
         param.requires_grad = True
         
-
-
+def disable_all_grads_enoder(model):
+    for p in model.encoder_params:
+        p.requires_grad=False
+    
+    
 class RNN_VAE(nn.Module):
     """
     1. Hu, Zhiting, et al. "Toward controlled generation of text." ICML. 2017.
