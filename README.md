@@ -11,6 +11,13 @@ An open-source Pytorch implementation ![Generating Natural Language Adversarial 
 -  https://github.com/wiseodd/controlled-text-generation
 
 
+### Project Structure
+- TextCNN - scripts to train TextCNN (required to run pipeline)
+- VAE - scripts to train VAE (not needed to run the pipeline, it is included separately)
+- notebooks - an end-to-end pipeline for training proposed model
+- datasets - torchtext based dataloaders
+- scripts - some helpful scripts 
+
 ### Requirements:
 - Torch >= 1.0.
 - Torchtext
